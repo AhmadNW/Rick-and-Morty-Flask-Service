@@ -1,0 +1,37 @@
+name: CI Pipeline - Flask + Docker + Helm
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-helm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List project files
+        run: ls -R
+
+      - name: Build Docker image
+        run: |
+          docker build -t rickmorty/app:latest .
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.15.4
+
+      - name: Helm lint
+        run: |
+          helm lint app
+
+      - name: Helm template
+        run: |
+          helm template app app
